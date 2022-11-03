@@ -31,7 +31,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  
+  # flutter_sequencer: ^0.4.4
+  # flutter_midi: ^1.1.0
+  # dart_melty_soundfont: ^1.1.5
+  # raw_sound: ^0.3.0+1
+  midi_player: ^0.2.0
+  soundpool: ^2.3.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -60,9 +66,12 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/
+    - assets/sf2/
+    - assets/wav/
+    # - images/a_dot_burr.jpeg
+    # - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

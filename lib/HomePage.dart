@@ -1,6 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:harp_app/Others/Tool/GlobalTool.dart';
+import 'package:harp_app/Others/Tool/SoundTool.dart';
 import 'Others/Constants/GeneralConstants.dart';
+
+// import 'package:flutter_sequencer/global_state.dart';
+// import 'package:flutter_sequencer/models/sfz.dart';
+// import 'package:flutter_sequencer/models/instrument.dart';
+// import 'package:flutter_sequencer/sequence.dart';
+// import 'package:flutter_sequencer/track.dart';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+// import 'package:flutter_midi/flutter_midi.dart';
+// import 'package:dart_melty_soundfont/dart_melty_soundfont.dart';
+// import 'package:raw_sound/raw_sound_player.dart';
+import 'package:midi_player/midi_player.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -10,10 +24,80 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final noteList = [
+    "B2",
+    "C3",
+    "D3",
+    "E3",
+    "F3",
+    "G3",
+    "A3",
+    "B3",
+    "C4",
+    "D4",
+    "E4",
+    "F4",
+    "G4",
+    "A4",
+    "B4",
+    "C5",
+    "D5",
+    "E5",
+    "F5",
+    "G5",
+  ];
+
+  // final sequence = Sequence(tempo: 120.0, endBeat: 8.0);
+  // String _value = 'assets/Piano.sf2';
+
+  // final instruments = [
+  //   Sf2Instrument(path: "assets/sf2/Concert_Harp.sf2", isAsset: true),
+  // ];
+
+  // final _flutterMidi = FlutterMidi();
+
+  // late Synthesizer synth;
+  // final _playerPCMI16 = RawSoundPlayer();
+
+  final _midiPlayer = MidiPlayer();
+
   @override
   void initState() {
     super.initState();
+
+    // load("assets/sf2/SuperHarp.sf2");
+    // load("assets/sf2/Concert_Harp.sf2");
+    // load("assets/sf2/Piano.sf2");
+
+    // _load();
+
+    _midiPlayer.load("assets/sf2/Edited_Concert_Harp.sf2");
   }
+
+  // void _load() async {
+  //   ByteData bytes = await rootBundle.load('assets/sf2/SuperHarp.sf2');
+
+  //   synth = Synthesizer.loadByteData(
+  //       bytes,
+  //       SynthesizerSettings(
+  //         sampleRate: 44100,
+  //         blockSize: 64,
+  //         maximumPolyphony: 64,
+  //         enableReverbAndChorus: true,
+  //       ));
+
+  //   // Turn on some notes
+  //   synth.noteOn(channel: 0, key: 72, velocity: 120);
+  //   synth.noteOn(channel: 0, key: 76, velocity: 120);
+  //   synth.noteOn(channel: 0, key: 79, velocity: 120);
+  //   synth.noteOn(channel: 0, key: 82, velocity: 120);
+  // }
+
+  // void load(String asset) async {
+  //   _flutterMidi.unmute();
+  //   ByteData _byte = await rootBundle.load(asset);
+  //   _flutterMidi.prepare(sf2: _byte);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -91,8 +175,20 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  void _stringClicked(int index) {
-    print("hhhdddd: ${index}");
+  void _stringClicked(int index) async {
+    print("_stringClicked: ${index}");
+
+    // _flutterMidi.unmute();
+    // _flutterMidi.playMidiNote(midi: 100);
+
+    // Render the waveform (3 seconds)
+    // ArrayInt16 buf16 = ArrayInt16.zeros(numShorts: 44100 * 3);
+    // synth.renderMonoInt16(buf16);
+    // await _playerPCMI16.feed(buf16);
+
+    // _midiPlayer.playNote(note: 60);
+
+    SoundTool().playNote(noteList[index]);
   }
 
   List<Widget> _generateHarpStringWidgets() {

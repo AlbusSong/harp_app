@@ -56,3 +56,7 @@ android/app/release/
 ios/DerivedData/
 ios/Pods/
 ios/.symlinks/
+
+
+# Assets
+assets/
