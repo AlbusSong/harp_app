@@ -46,6 +46,9 @@ class SoundTool {
   }
 
   void stopNote() {
+    if (this.currentStreamId < 0) {
+      return;
+    }
     sp.stop(this.currentStreamId);
   }
 }

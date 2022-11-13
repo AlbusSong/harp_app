@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:harp_app/Others/Tool/GlobalTool.dart';
 import 'package:harp_app/Others/Tool/SoundTool.dart';
 import 'Others/Constants/GeneralConstants.dart';
@@ -23,7 +24,7 @@ class HomePage extends StatefulWidget {
   }
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final noteList = [
     "B2",
     "C3",
@@ -61,6 +62,11 @@ class _HomePageState extends State<HomePage> {
 
   final _midiPlayer = MidiPlayer();
 
+  late AnimationController _animController;
+  Alignment _pluckAlignment = Alignment(0, 0);
+  late Animation<Alignment> _animation;
+  int _pluckingIndex = -1;
+
   @override
   void initState() {
     super.initState();
@@ -72,6 +78,51 @@ class _HomePageState extends State<HomePage> {
     // _load();
 
     _midiPlayer.load("assets/sf2/Edited_Concert_Harp.sf2");
+
+    _animController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _animController.addListener(() {
+      print("_animation.value: ${_animation.value}");
+      setState(() {
+        _pluckAlignment = _animation.value;
+      });
+    });
+  }
+
+  void _runAnim() {
+    _stopAnim();
+
+    _animation = _animController.drive(
+      AlignmentTween(
+        // begin: _pluckAlignment,
+        begin: Alignment(0, 0.5),
+        end: Alignment(0, 0),
+      ),
+    );
+
+    // _animController.reset();
+    // _animController.forward();
+
+    const spring = SpringDescription(
+      mass: 1,
+      stiffness: 10,
+      damping: 1,
+    );
+
+    final simulation = SpringSimulation(spring, 0, 10, 1);
+    _animController.animateWith(simulation);
+  }
+
+  void _stopAnim() {
+    _animController.stop();
+    _animController.reset();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+
+    super.dispose();
   }
 
   // void _load() async {
@@ -149,6 +200,12 @@ class _HomePageState extends State<HomePage> {
       // color: randomColor(),
       width: w,
       height: h,
+      // child: Positioned(
+      //   child: _generateString(index),
+      //   top: 10,
+      //   left: 0,
+      //   right: 0,
+      // ),
       child: Center(
         child: _generateString(index),
       ),
@@ -156,15 +213,29 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _generateString(int index) {
+    Container s = Container(
+      color: Colors.white,
+      height: 5,
+    );
     Container c = Container(
       // color: randomColor(),
       height: 40,
-      child: Center(
-        child: Container(
-          color: Colors.white,
-          height: 5,
-        ),
+      child: Align(
+        child: s,
+        widthFactor: 1,
+        heightFactor: 1,
+        // duration: Duration(seconds: 1),
+        alignment:
+            (index == _pluckingIndex) ? _pluckAlignment : Alignment.center,
+        // alignment: FractionalOffset(0, 0.4),
       ),
+      // child: Positioned(
+      //   child: s,
+      //   left: 10,
+      //   right: 10,
+      //   top: 3,
+      // ),
+      // child: Center(child: s),
     );
 
     return GestureDetector(
@@ -189,6 +260,13 @@ class _HomePageState extends State<HomePage> {
     // _midiPlayer.playNote(note: 60);
 
     SoundTool().playNote(noteList[index]);
+
+    _pluckingIndex = index;
+    _runAnim();
+
+    // this.setState(() {
+    //   this._pluckAlignment = Alignment(0, 0.5);
+    // });
   }
 
   List<Widget> _generateHarpStringWidgets() {
