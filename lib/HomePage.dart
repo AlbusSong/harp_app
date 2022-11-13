@@ -63,8 +63,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final _midiPlayer = MidiPlayer();
 
   late AnimationController _animController;
-  Alignment _pluckAlignment = Alignment(0, 0);
-  late Animation<Alignment> _animation;
   int _pluckingIndex = -1;
 
   @override
@@ -80,42 +78,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _midiPlayer.load("assets/sf2/Edited_Concert_Harp.sf2");
 
     _animController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 2));
+        AnimationController(vsync: this, lowerBound: -0.05, upperBound: 0.05);
     _animController.addListener(() {
-      print("_animation.value: ${_animation.value}");
-      setState(() {
-        _pluckAlignment = _animation.value;
-      });
+      print(_animController.value);
+      setState(() {});
     });
   }
 
   void _runAnim() {
     _stopAnim();
 
-    _animation = _animController.drive(
-      AlignmentTween(
-        // begin: _pluckAlignment,
-        begin: Alignment(0, 0.5),
-        end: Alignment(0, 0),
-      ),
-    );
-
-    // _animController.reset();
-    // _animController.forward();
-
     const spring = SpringDescription(
-      mass: 1,
-      stiffness: 10,
-      damping: 1,
+      mass: 2,
+      stiffness: 2000,
+      damping: 4,
     );
 
-    final simulation = SpringSimulation(spring, 0, 10, 1);
+    final simulation = SpringSimulation(spring, 0.05, 0, 300);
     _animController.animateWith(simulation);
   }
 
   void _stopAnim() {
     _animController.stop();
-    _animController.reset();
+    // _animController.reset();
   }
 
   @override
@@ -224,18 +209,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         child: s,
         widthFactor: 1,
         heightFactor: 1,
-        // duration: Duration(seconds: 1),
         alignment:
-            (index == _pluckingIndex) ? _pluckAlignment : Alignment.center,
-        // alignment: FractionalOffset(0, 0.4),
+            Alignment(0, (index == _pluckingIndex ? _animController.value : 0)),
       ),
-      // child: Positioned(
-      //   child: s,
-      //   left: 10,
-      //   right: 10,
-      //   top: 3,
-      // ),
-      // child: Center(child: s),
     );
 
     return GestureDetector(
@@ -263,10 +239,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     _pluckingIndex = index;
     _runAnim();
-
-    // this.setState(() {
-    //   this._pluckAlignment = Alignment(0, 0.5);
-    // });
   }
 
   List<Widget> _generateHarpStringWidgets() {

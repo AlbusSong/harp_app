@@ -130,3 +130,6 @@ class _SpringAnimPageState extends State<SpringAnimPage>
     );
   }
 }
+
+// https://erdoganbavas.medium.com/physics-based-animations-in-flutter-1d20130919a1
+// https://zhuanlan.zhihu.com/p/356783800
