@@ -18,6 +18,7 @@ import 'package:flutter/services.dart';
 import 'package:midi_player/midi_player.dart';
 import 'MyPainter.dart';
 import 'FrostedGlassView.dart';
+import 'AddNotesPage.dart';
 
 class __MyPathClipper extends CustomClipper<Path> {
   // https://www.jianshu.com/p/9dca9e8cc4bc
@@ -90,6 +91,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
 
     // load("assets/sf2/SuperHarp.sf2");
     // load("assets/sf2/Concert_Harp.sf2");
@@ -179,7 +182,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               fit: BoxFit.cover,
             ),
           ),
-
           SizedBox(
             width: double.infinity,
             height: double.infinity,
@@ -192,7 +194,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
             ),
           ),
-
           SizedBox(
             // color: randomColor(),
             width: double.infinity,
@@ -201,7 +202,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               painter: MyPainter(),
             ),
           ),
-
           Positioned(
             child: _buildStringsArea(),
             left: 30,
@@ -209,12 +209,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             top: 30,
             bottom: 30,
           ),
-
-          // Positioned(
-          //   child: _buildSettingsButton(),
-          //   bottom: 50,
-          //   left: 30,
-          // )
+          Positioned(
+            child: _buildSettingsButton(),
+            bottom: 100,
+            left: 100,
+          )
         ],
       ),
     );
@@ -256,7 +255,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     String noteColorStr = "ffffff";
     if (noteName.startsWith("C")) {
       noteColorStr = "329E54";
-    } else if (noteName.startsWith("G")) {
+    } else if (noteName.startsWith("F")) {
       noteColorStr = "971111";
     }
     double full_h = 5;
@@ -340,10 +339,43 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget _buildSettingsButton() {
-    return Container(
-      width: 60,
-      height: 60,
-      color: Colors.green,
+    Container c = Container(
+      padding: EdgeInsets.symmetric(horizontal: 5),
+      // color: Colors.green,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image.asset(
+            "assets/images/MusicNote.png",
+            width: 80,
+            height: 80,
+            // fit: BoxFit.fitHeight,
+          ),
+          Text(
+            "Add Notes",
+            style: TextStyle(
+                color: hexColor("723030"),
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                shadows: [
+                  Shadow(
+                      color: hexColor("000000", 0.2),
+                      offset: Offset(1, 0),
+                      blurRadius: 1),
+                ]),
+          )
+        ],
+      ),
+    );
+
+    return GestureDetector(
+      child: c,
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        print("ccc");
+        presentNewPage(context, AddNotesPage());
+      },
     );
   }
 }

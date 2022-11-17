@@ -1,5 +1,64 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
+
+dynamic presentNewPage(BuildContext context, Widget page,
+    {bool animated = true}) {
+  PageRouteBuilder _router = PageRouteBuilder(
+    opaque: false,
+    pageBuilder: (context, animation, secondaryAnimation) => page,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      var begin = Offset(0.0, 1.0);
+      if (animated == false) {
+        begin = Offset.zero;
+      }
+      var end = Offset.zero;
+      var curve = Curves.easeOutCirc;
+
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
+  return Navigator.push(context, _router);
+}
+
+void pushNewPage(BuildContext context, Widget page) {
+  if (Platform.isFuchsia) {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (BuildContext ctx) => page));
+  } else {
+    PageRouteBuilder _router = PageRouteBuilder(
+      opaque: false,
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(1.0, 0.0);
+        var end = Offset.zero;
+        var curve = Curves.easeOutCirc;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+    Navigator.push(context, _router);
+  }
+}
+
+void popBack(BuildContext context, {dynamic resp}) {
+  if (resp != null) {
+    Navigator.of(context).pop(resp);
+  } else {
+    Navigator.pop(context);
+  }
+}
 
 MaterialColor createMaterialColor(Color color) {
   List strengths = <double>[0.05];

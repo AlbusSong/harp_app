@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'HomePage.dart';
+import 'Others/Tool/GlobalTool.dart';
 import 'SpringAnimPage.dart';
 
 void main() {
@@ -25,6 +26,17 @@ class MyApp extends StatelessWidget {
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
         primarySwatch: Colors.blue,
+        appBarTheme: AppBarTheme(
+          centerTitle: true,
+          elevation: 0.5,
+          backgroundColor: hexColor("723030"),
+          foregroundColor: Colors.white,
+          titleTextStyle: TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       home: HomePage(),
       debugShowCheckedModeBanner: false,
