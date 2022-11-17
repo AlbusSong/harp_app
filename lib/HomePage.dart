@@ -252,10 +252,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget _generateString(int index) {
+    String noteName = noteList[index];
+    String noteColorStr = "ffffff";
+    if (noteName.startsWith("C")) {
+      noteColorStr = "329E54";
+    } else if (noteName.startsWith("G")) {
+      noteColorStr = "971111";
+    }
     double full_h = 5;
-    double h = full_h * (1 - index * 0.030);
+    double h = full_h * (1 - index * 0.035);
     Container s = Container(
-      color: Colors.white,
+      color: hexColor(noteColorStr),
       height: h,
     );
     Container c = Container(
@@ -282,7 +289,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          "F3",
+          noteName,
           style: TextStyle(
               color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
