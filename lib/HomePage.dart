@@ -16,6 +16,28 @@ import 'package:flutter/services.dart';
 // import 'package:dart_melty_soundfont/dart_melty_soundfont.dart';
 // import 'package:raw_sound/raw_sound_player.dart';
 import 'package:midi_player/midi_player.dart';
+import 'MyPainter.dart';
+import 'FrostedGlassView.dart';
+
+class __MyPathClipper extends CustomClipper<Path> {
+  // https://www.jianshu.com/p/9dca9e8cc4bc
+
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+    path.moveTo(150, 0);
+    path.lineTo(size.width - 200, size.height);
+    path.lineTo(0, size.height);
+    path.lineTo(0, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) {
+    return false;
+  }
+}
 
 class HomePage extends StatefulWidget {
   @override
@@ -149,18 +171,50 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       color: Colors.pink,
       child: Stack(
         children: [
+          SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Image.asset(
+              "assets/images/bg.png",
+              fit: BoxFit.cover,
+            ),
+          ),
+
+          SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            // color: randomColor(),
+            child: ClipPath(
+              clipper: __MyPathClipper(),
+              child: FrostedGlassView(
+                bgColor: hexColor("222222", 0.1),
+                blurX: 20,
+              ),
+            ),
+          ),
+
+          SizedBox(
+            // color: randomColor(),
+            width: double.infinity,
+            height: double.infinity,
+            child: CustomPaint(
+              painter: MyPainter(),
+            ),
+          ),
+
           Positioned(
             child: _buildStringsArea(),
             left: 30,
-            right: 10,
+            right: 0,
             top: 30,
             bottom: 30,
           ),
-          Positioned(
-            child: _buildSettingsButton(),
-            bottom: 50,
-            left: 30,
-          )
+
+          // Positioned(
+          //   child: _buildSettingsButton(),
+          //   bottom: 50,
+          //   left: 30,
+          // )
         ],
       ),
     );
@@ -168,7 +222,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Widget _buildStringsArea() {
     return Container(
-      color: Colors.amber,
+      // color: Colors.amber,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -180,7 +234,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget _generateSingleHarpString(int index) {
     double h = (SCREEN_H - 30 * 2) / 20;
     double full_w = (SCREEN_W - 30 - 10);
-    double w = full_w * (1 - index * 0.025);
+    double w = full_w * (1 - index * 0.029);
     return Container(
       // color: randomColor(),
       width: w,
@@ -198,9 +252,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget _generateString(int index) {
+    double full_h = 5;
+    double h = full_h * (1 - index * 0.030);
     Container s = Container(
       color: Colors.white,
-      height: 5,
+      height: h,
     );
     Container c = Container(
       // color: randomColor(),
@@ -214,12 +270,36 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       ),
     );
 
-    return GestureDetector(
+    GestureDetector g = GestureDetector(
         child: c,
         behavior: HitTestBehavior.opaque,
         onTap: () {
           _stringClicked(index);
         });
+
+    return Row(
+      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          "F3",
+          style: TextStyle(
+              color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(width: 10),
+        Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(
+              Radius.circular(10),
+            ),
+          ),
+        ),
+        Expanded(child: g),
+      ],
+    );
   }
 
   void _stringClicked(int index) async {
