@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'HomePage.dart';
 import 'Others/Tool/GlobalTool.dart';
+import 'Others/Tool/LocalDataTool.dart';
 import 'SpringAnimPage.dart';
 
 void main() {
   runApp(const MyApp());
+
+  LocalDataTool();
 }
 
 class MyApp extends StatelessWidget {

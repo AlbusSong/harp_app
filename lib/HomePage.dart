@@ -210,7 +210,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             bottom: 30,
           ),
           Positioned(
-            child: _buildSettingsButton(),
+            child: _buildAddNotesButton(),
             bottom: 100,
             left: 100,
           )
@@ -338,7 +338,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return wgtList;
   }
 
-  Widget _buildSettingsButton() {
+  Widget _buildAddNotesButton() {
     Container c = Container(
       padding: EdgeInsets.symmetric(horizontal: 5),
       // color: Colors.green,
@@ -373,9 +373,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       child: c,
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        print("ccc");
-        presentNewPage(context, AddNotesPage());
+        _addNotesButtonClicked();
       },
     );
+  }
+
+  void _addNotesButtonClicked() async {
+    List<String> noteArr = await presentNewPage(context, AddNotesPage());
   }
 }
