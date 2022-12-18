@@ -7,7 +7,7 @@ import 'package:harp_app/Others/Tool/GlobalTool.dart';
 class MyPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    print('paint size: ${size}');
+    // print('paint size: ${size}');
 
     var rect = Offset.zero & size;
 

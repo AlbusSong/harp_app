@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'dart:io';
 import 'package:harp_app/Others/Tool/GlobalTool.dart';
 import 'package:harp_app/Others/Tool/SoundTool.dart';
 import 'Others/Constants/GeneralConstants.dart';
@@ -105,7 +106,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _animController =
         AnimationController(vsync: this, lowerBound: -0.05, upperBound: 0.05);
     _animController.addListener(() {
-      print(_animController.value);
+      // print(_animController.value);
       setState(() {});
     });
   }
@@ -374,11 +375,54 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       behavior: HitTestBehavior.opaque,
       onTap: () {
         _addNotesButtonClicked();
+        // _playSequenceNotes(["2", "3"]);
       },
     );
   }
 
   void _addNotesButtonClicked() async {
     List<String> noteArr = await presentNewPage(context, AddNotesPage());
+
+    Future.delayed(Duration(seconds: 1), () {
+      _playSequenceNotes(noteArr);
+    });
+  }
+
+  void _playSequenceNotes(List<String> noteArr) {
+    for (int i = 0; i < noteArr.length; i++) {
+      String noteStr = noteArr[i];
+      int transformedNoteIndex = _transformNoteStrToIndex(noteStr);
+      Future.delayed(Duration(milliseconds: 600 * i), () {
+        if (transformedNoteIndex >= 0) {
+          _stringClicked(transformedNoteIndex);
+        }
+      });
+      // sleep(Duration(seconds: 1 * i));
+    }
+  }
+
+  int _transformNoteStrToIndex(String noteStr) {
+    int result = -1;
+    if (noteStr == "|" || noteStr == "-") {
+      result = -1;
+    } else if (noteStr == "0") {
+      result = -1;
+    } else {
+      int extraMark = 0;
+      if (noteStr.length == 2) {
+        if (noteStr.startsWith("-")) {
+          extraMark = -1;
+        } else {
+          extraMark = 1;
+        }
+
+        noteStr = noteStr.substring(1, 2);
+      }
+
+      int noteInt = int.parse(noteStr);
+      result = noteInt + 7 + (extraMark * 7);
+    }
+
+    return result;
   }
 }

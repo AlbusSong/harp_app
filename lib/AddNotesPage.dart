@@ -436,6 +436,7 @@ class _AddNotesPageState extends State<AddNotesPage> {
         showMsg("Empty notes", true);
         return;
       }
+
       Navigator.of(context).pop(noteArr);
     } else if (index == 1) {
       LocalDataTool().saveNoteArrToLocal(noteArr);
