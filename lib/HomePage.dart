@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
-import 'dart:io';
 import 'package:harp_app/Others/Tool/GlobalTool.dart';
 import 'package:harp_app/Others/Tool/SoundTool.dart';
 import 'Others/Constants/GeneralConstants.dart';
@@ -11,7 +10,6 @@ import 'Others/Constants/GeneralConstants.dart';
 // import 'package:flutter_sequencer/sequence.dart';
 // import 'package:flutter_sequencer/track.dart';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 // import 'package:flutter_midi/flutter_midi.dart';
 // import 'package:dart_melty_soundfont/dart_melty_soundfont.dart';
@@ -20,6 +18,7 @@ import 'package:midi_player/midi_player.dart';
 import 'MyPainter.dart';
 import 'FrostedGlassView.dart';
 import 'AddNotesPage.dart';
+import 'RippleAnimation.dart';
 
 class __MyPathClipper extends CustomClipper<Path> {
   // https://www.jianshu.com/p/9dca9e8cc4bc
@@ -87,7 +86,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final _midiPlayer = MidiPlayer();
 
   late AnimationController _animController;
+  Offset posOfBlinkObject = Offset(-100, -100);
+  bool isBlinkAnimTriggeredByTap = false;
+  late RippleAnimation _blinkObj;
   int _pluckingIndex = -1;
+  List<GlobalKey> sKeyList = [];
+  List<Container> stringWidgetList = [];
 
   @override
   void initState() {
@@ -103,12 +107,30 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     _midiPlayer.load("assets/sf2/Edited_Concert_Harp.sf2");
 
+    _blinkObj = RippleAnimation(
+      repeat: true,
+      color: Color.fromARGB(196, 239, 211, 53),
+      minRadius: 10,
+      ripplesCount: 4,
+      child: Container(),
+      duration: Duration(milliseconds: 3000),
+    );
+
     _animController =
         AnimationController(vsync: this, lowerBound: -0.05, upperBound: 0.05);
     _animController.addListener(() {
       // print(_animController.value);
+      if (_animController.status == AnimationStatus.completed) {
+        _blinkObj.stopAnimAndDisappear();
+      }
       setState(() {});
     });
+
+    // _animCtrlerBlink = AnimationController(
+    //     vsync: this, duration: Duration(microseconds: 1000));
+    // _animCtrlerBlink.addListener(() {
+    //   setState(() {});
+    // });
   }
 
   void _runAnim() {
@@ -214,7 +236,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             child: _buildAddNotesButton(),
             bottom: 100,
             left: 100,
-          )
+          ),
+          Positioned(
+            child: _blinkObj,
+            top: posOfBlinkObject.dy,
+            left: posOfBlinkObject.dx,
+          ),
         ],
       ),
     );
@@ -239,12 +266,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       // color: randomColor(),
       width: w,
       height: h,
-      // child: Positioned(
-      //   child: _generateString(index),
-      //   top: 10,
-      //   left: 0,
-      //   right: 0,
-      // ),
       child: Center(
         child: _generateString(index),
       ),
@@ -261,10 +282,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
     double full_h = 5;
     double h = full_h * (1 - index * 0.035);
+    GlobalKey _sKey = GlobalKey();
     Container s = Container(
+      key: _sKey,
       color: hexColor(noteColorStr),
       height: h,
     );
+
+    sKeyList.add(_sKey);
+    stringWidgetList.add(s);
+
     Container c = Container(
       // color: randomColor(),
       height: 40,
@@ -278,11 +305,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
 
     GestureDetector g = GestureDetector(
-        child: c,
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          _stringClicked(index);
+      child: c,
+      behavior: HitTestBehavior.opaque,
+      onTapUp: (details) {
+        this.isBlinkAnimTriggeredByTap = true;
+        print(details.globalPosition);
+        RenderBox renderBox =
+            _sKey.currentContext?.findRenderObject() as RenderBox;
+        double offY = details.globalPosition.dy;
+        final positionGreen = renderBox.localToGlobal(Offset.zero);
+        offY = positionGreen.dy;
+        setState(() {
+          this.posOfBlinkObject = Offset(details.globalPosition.dx, offY);
         });
+      },
+      onTap: () {
+        _stringClicked(index);
+      },
+    );
 
     return Row(
       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -326,6 +366,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     _pluckingIndex = index;
     _runAnim();
+
+    if (isBlinkAnimTriggeredByTap == false) {
+      // GlobalKey _sKey = sKeyList[index];
+      // RenderObject? renderBox = _sKey.currentContext?.findRenderObject();
+      // print("renderBox: ${_sKey.currentContext}");
+      // final rectGreen = renderBox.size;
+      // final positionGreen = renderBox.localToGlobal(Offset.zero);
+      // print("positionGreen: ${positionGreen}");
+      // double offY = positionGreen.dy;
+      // setState(() {
+      //   this.posOfBlinkObject =
+      //       Offset(positionGreen.dx + rectGreen.width / 2.0, offY);
+      // });
+
+      // Container s = stringWidgetList[index];
+      // GlobalKey k = s.key! as GlobalKey;
+      // print("s.key: ${k.currentContext}");
+    }
+    _blinkObj.restartAnim();
   }
 
   List<Widget> _generateHarpStringWidgets() {
@@ -384,6 +443,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     List<String> noteArr = await presentNewPage(context, AddNotesPage());
 
     Future.delayed(Duration(seconds: 1), () {
+      isBlinkAnimTriggeredByTap = false;
       _playSequenceNotes(noteArr);
     });
   }
