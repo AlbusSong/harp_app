@@ -55,13 +55,11 @@ class _BlinkAnimationObjectState extends State<BlinkAnimationObject>
   }
 
   void _stopAnimAndDisappear() {
-    print("yyyayysydfa");
     _controller!.stop();
     _controller!.reset();
   }
 
   void _restartAnim() {
-    print("_restartAnim");
     _controller!.reset();
     _controller!.forward();
   }
