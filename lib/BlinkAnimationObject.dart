@@ -1,13 +1,7 @@
 import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-/// You can use whatever widget as a [child], when you don't need to provide any
-/// [child], just provide an empty Container().
-/// [delay] is using a [Timer] for delaying the animation, it's zero by default.
-/// You can set [repeat] to true for making a paulsing effect.
-class RippleAnimation extends StatefulWidget {
+class BlinkAnimationObject extends StatefulWidget {
   final Widget child;
   final Duration delay;
   final double minRadius;
@@ -16,7 +10,7 @@ class RippleAnimation extends StatefulWidget {
   final Duration duration;
   final bool repeat;
 
-  RippleAnimation({
+  BlinkAnimationObject({
     Key? key,
     required this.child,
     required this.color,
@@ -27,7 +21,7 @@ class RippleAnimation extends StatefulWidget {
     this.duration = const Duration(milliseconds: 2300),
   }) : super(key: key);
 
-  final _RippleAnimationState _theState = _RippleAnimationState();
+  final _BlinkAnimationObjectState _theState = _BlinkAnimationObjectState();
 
   void restartAnim() {
     _theState._restartAnim();
@@ -38,10 +32,10 @@ class RippleAnimation extends StatefulWidget {
   }
 
   @override
-  _RippleAnimationState createState() => _theState;
+  _BlinkAnimationObjectState createState() => _theState;
 }
 
-class _RippleAnimationState extends State<RippleAnimation>
+class _BlinkAnimationObjectState extends State<BlinkAnimationObject>
     with TickerProviderStateMixin {
   AnimationController? _controller;
 
@@ -69,7 +63,7 @@ class _RippleAnimationState extends State<RippleAnimation>
   void _restartAnim() {
     print("_restartAnim");
     _controller!.reset();
-    _controller!.repeat();
+    _controller!.forward();
   }
 
   @override

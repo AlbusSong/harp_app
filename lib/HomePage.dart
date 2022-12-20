@@ -18,7 +18,7 @@ import 'package:midi_player/midi_player.dart';
 import 'MyPainter.dart';
 import 'FrostedGlassView.dart';
 import 'AddNotesPage.dart';
-import 'RippleAnimation.dart';
+import 'BlinkAnimationObject.dart';
 
 class __MyPathClipper extends CustomClipper<Path> {
   // https://www.jianshu.com/p/9dca9e8cc4bc
@@ -48,6 +48,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+
   final noteList = [
     "B2",
     "C3",
@@ -88,10 +90,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late AnimationController _animController;
   Offset posOfBlinkObject = Offset(-100, -100);
   bool isBlinkAnimTriggeredByTap = false;
-  late RippleAnimation _blinkObj;
+  late BlinkAnimationObject _blinkObj;
   int _pluckingIndex = -1;
   List<GlobalKey> sKeyList = [];
-  List<Container> stringWidgetList = [];
+  List<Rect> stringRectInfoList = [];
+  // List<Container> stringWidgetList = [];
 
   @override
   void initState() {
@@ -107,13 +110,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     _midiPlayer.load("assets/sf2/Edited_Concert_Harp.sf2");
 
-    _blinkObj = RippleAnimation(
-      repeat: true,
+    _blinkObj = BlinkAnimationObject(
+      repeat: false,
       color: Color.fromARGB(196, 239, 211, 53),
       minRadius: 10,
       ripplesCount: 4,
       child: Container(),
-      duration: Duration(milliseconds: 3000),
+      duration: Duration(milliseconds: 2000),
     );
 
     _animController =
@@ -125,12 +128,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       }
       setState(() {});
     });
-
-    // _animCtrlerBlink = AnimationController(
-    //     vsync: this, duration: Duration(microseconds: 1000));
-    // _animCtrlerBlink.addListener(() {
-    //   setState(() {});
-    // });
   }
 
   void _runAnim() {
@@ -185,8 +182,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((duration) {
+      if (stringRectInfoList.length == 0) {
+        for (int i = 0; i < sKeyList.length; i++) {
+          GlobalKey _sKey = sKeyList[i];
+          RenderBox box = _sKey.currentContext!.findRenderObject() as RenderBox;
+          Offset p = box.localToGlobal(Offset.zero);
+          Rect r = Rect.fromLTWH(p.dx, p.dy, box.size.width, box.size.height);
+          stringRectInfoList.add(r);
+        }
+      }
+    });
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      key: _scaffoldKey,
+      backgroundColor: hexColor("723030"),
       extendBody: true,
       body: _buildBody(),
     );
@@ -194,7 +204,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Widget _buildBody() {
     return Container(
-      color: Colors.pink,
       child: Stack(
         children: [
           SizedBox(
@@ -290,11 +299,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
 
     sKeyList.add(_sKey);
-    stringWidgetList.add(s);
 
     Container c = Container(
       // color: randomColor(),
-      height: 40,
+      height: 50,
       child: Align(
         child: s,
         widthFactor: 1,
@@ -313,10 +321,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         RenderBox renderBox =
             _sKey.currentContext?.findRenderObject() as RenderBox;
         double offY = details.globalPosition.dy;
-        final positionGreen = renderBox.localToGlobal(Offset.zero);
-        offY = positionGreen.dy;
+        final pos = renderBox.localToGlobal(Offset.zero);
+        offY = pos.dy;
         setState(() {
-          this.posOfBlinkObject = Offset(details.globalPosition.dx, offY);
+          this.posOfBlinkObject = Offset(
+              details.globalPosition.dx, offY + renderBox.size.height / 2.0);
         });
       },
       onTap: () {
@@ -368,21 +377,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _runAnim();
 
     if (isBlinkAnimTriggeredByTap == false) {
-      // GlobalKey _sKey = sKeyList[index];
-      // RenderObject? renderBox = _sKey.currentContext?.findRenderObject();
-      // print("renderBox: ${_sKey.currentContext}");
-      // final rectGreen = renderBox.size;
-      // final positionGreen = renderBox.localToGlobal(Offset.zero);
-      // print("positionGreen: ${positionGreen}");
-      // double offY = positionGreen.dy;
-      // setState(() {
-      //   this.posOfBlinkObject =
-      //       Offset(positionGreen.dx + rectGreen.width / 2.0, offY);
-      // });
-
-      // Container s = stringWidgetList[index];
-      // GlobalKey k = s.key! as GlobalKey;
-      // print("s.key: ${k.currentContext}");
+      Rect r = stringRectInfoList[index];
+      setState(() {
+        this.posOfBlinkObject =
+            Offset(r.left + r.width / 2.0, r.top + r.height / 2.0);
+      });
     }
     _blinkObj.restartAnim();
   }
@@ -452,7 +451,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     for (int i = 0; i < noteArr.length; i++) {
       String noteStr = noteArr[i];
       int transformedNoteIndex = _transformNoteStrToIndex(noteStr);
-      Future.delayed(Duration(milliseconds: 600 * i), () {
+      Future.delayed(Duration(milliseconds: 1000 * i), () {
         if (transformedNoteIndex >= 0) {
           _stringClicked(transformedNoteIndex);
         }
