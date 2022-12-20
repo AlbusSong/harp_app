@@ -131,3 +131,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
+
+// Reference:
+// https://felixblaschke.medium.com/particle-animations-with-flutter-756a23dba027
+// https://blog.csdn.net/sinat_17775997/article/details/106717551
+// https://juejin.cn/post/6844904139038654472
+// https://www.jianshu.com/p/22dc3488bc40
